@@ -32,6 +32,9 @@ export const CreatorPerkSchema = z.object({
  *
  * The shape is explicit now so future indexing-backed values can be dropped in
  * without changing API contracts.
+ *
+ * @see ../creators/creators.serializers.ts — module docblock for null vs absent
+ *      field rules across creator list and detail responses.
  */
 export const CreatorProfileReadResponseSchema = z.object({
    creatorId: z.string(),
