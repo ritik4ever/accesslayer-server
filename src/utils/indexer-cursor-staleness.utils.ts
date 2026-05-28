@@ -3,6 +3,8 @@ import { prisma } from './prisma.utils';
 import { logger } from './logger.utils';
 import { formatCursorForDebug } from './cursor-debug.utils';
 
+const prismaClient = prisma as unknown as Record<string, any>;
+
 /** Correlates a staleness warning with the indexer job that observed it. */
 export interface IndexerCursorStalenessContext {
    /** Indexer job or worker surface (e.g. `indexer`, `ledger-indexer`). */
@@ -66,7 +68,7 @@ export async function checkIndexerCursorStalenessFromStore(
       return;
    }
 
-   const status = await prisma.indexedLedger.findFirst({
+   const status = await prismaClient.indexedLedger.findFirst({
       orderBy: { updatedAt: 'desc' },
    });
 

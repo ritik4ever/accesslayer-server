@@ -26,7 +26,11 @@ jest.mock('../../config', () => ({
 }));
 
 const warnMock = logger.warn as jest.Mock;
-const findFirstMock = prisma.indexedLedger.findFirst as jest.Mock;
+const findFirstMock = (prisma as unknown as {
+   indexedLedger: {
+      findFirst: jest.Mock;
+   };
+}).indexedLedger.findFirst;
 
 beforeEach(() => {
    warnMock.mockClear();
@@ -62,9 +66,16 @@ describe('warnIfIndexerCursorStale()', () => {
    });
 
    it('does not emit a warning when cursor lag exactly equals the threshold', () => {
-      const exactly = new Date(Date.now() - 300_000);
-      warnIfIndexerCursorStale(exactly, 300_000);
-      expect(warnMock).not.toHaveBeenCalled();
+      const now = Date.now();
+      const exactly = new Date(now - 300_000);
+      const nowSpy = jest.spyOn(Date, 'now').mockReturnValue(now);
+
+      try {
+         warnIfIndexerCursorStale(exactly, 300_000);
+         expect(warnMock).not.toHaveBeenCalled();
+      } finally {
+         nowSpy.mockRestore();
+      }
    });
 
    it('includes lastUpdatedAt, lagMs and thresholdMs in the warning payload', () => {

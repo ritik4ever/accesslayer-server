@@ -44,4 +44,6 @@ function run() {
    console.log('creator-profile.schemas tests passed');
 }
 
-run();
+test('creator-profile.schemas self-checks', () => {
+   run();
+});

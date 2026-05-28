@@ -27,16 +27,16 @@ function run() {
       const next: NextFunction = () => {
          called = true;
       };
-      
+
       // Ensure it's enabled for the test
       const originalValue = envConfig.ENABLE_SCHEMA_VERSION_HEADER;
       (envConfig as any).ENABLE_SCHEMA_VERSION_HEADER = true;
-      
+
       schemaVersionMiddleware(mockReq(), res, next);
-      
+
       assert.equal(res.headers[SCHEMA_VERSION_HEADER], REQUEST_SCHEMA_VERSION);
       assert.ok(called, 'next() should be called');
-      
+
       // Restore
       (envConfig as any).ENABLE_SCHEMA_VERSION_HEADER = originalValue;
    }
@@ -48,16 +48,16 @@ function run() {
       const next: NextFunction = () => {
          called = true;
       };
-      
+
       // Ensure it's disabled for the test
       const originalValue = envConfig.ENABLE_SCHEMA_VERSION_HEADER;
       (envConfig as any).ENABLE_SCHEMA_VERSION_HEADER = false;
-      
+
       schemaVersionMiddleware(mockReq(), res, next);
-      
+
       assert.ok(!(SCHEMA_VERSION_HEADER in res.headers), 'Header should not be set');
       assert.ok(called, 'next() should be called');
-      
+
       // Restore
       (envConfig as any).ENABLE_SCHEMA_VERSION_HEADER = originalValue;
    }
@@ -65,4 +65,6 @@ function run() {
    console.log('schema-version.middleware tests passed');
 }
 
-run();
+test('schema-version.middleware self-checks', () => {
+   run();
+});

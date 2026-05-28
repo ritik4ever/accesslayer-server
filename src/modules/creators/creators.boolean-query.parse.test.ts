@@ -33,4 +33,6 @@ function run() {
    console.log('creators.boolean-query.parse tests passed');
 }
 
-run();
+test('creators.boolean-query.parse self-checks', () => {
+   run();
+});

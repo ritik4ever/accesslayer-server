@@ -24,7 +24,6 @@ async function run() {
    console.log('monotonic-clock.utils tests passed');
 }
 
-run().catch((err) => {
-   console.error(err);
-   process.exit(1);
+test('monotonic-clock.utils self-checks', async () => {
+   await run();
 });

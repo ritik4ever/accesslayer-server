@@ -16,4 +16,6 @@ function run() {
    console.log('creator-list-item.mapper test passed');
 }
 
-run();
+test('creator-list-item.mapper self-checks', () => {
+   run();
+});

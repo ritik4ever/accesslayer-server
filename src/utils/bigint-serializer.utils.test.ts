@@ -39,4 +39,6 @@ function run() {
    console.log('bigint-serializer.utils tests passed');
 }
 
-run();
+test('bigint-serializer.utils self-checks', () => {
+   run();
+});

@@ -40,7 +40,6 @@ async function run() {
    console.log('rpc-timeout.utils tests passed');
 }
 
-run().catch((err) => {
-   console.error(err);
-   process.exit(1);
+test('rpc-timeout.utils self-checks', async () => {
+   await run();
 });

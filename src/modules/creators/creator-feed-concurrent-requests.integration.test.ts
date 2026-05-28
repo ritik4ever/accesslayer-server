@@ -65,7 +65,7 @@ describe('GET /api/v1/creators — concurrent requests return consistent results
          reqs.map((req, i) => httpListCreators(req, reses[i], nexts[i]))
       );
 
-      const bodies = reses.map((res) => res.json.mock.calls[0][0]);
+      const bodies = reses.map((_res) => _res.json.mock.calls[0][0]);
       expect(bodies[0]).toEqual(bodies[1]);
    });
 
@@ -83,7 +83,7 @@ describe('GET /api/v1/creators — concurrent requests return consistent results
          reqs.map((req, i) => httpListCreators(req, reses[i], nexts[i]))
       );
 
-      const bodies = reses.map((res) => res.json.mock.calls[0][0]);
+      const bodies = reses.map((_res) => _res.json.mock.calls[0][0]);
       for (let i = 1; i < bodies.length; i++) {
          expect(bodies[i]).toEqual(bodies[0]);
       }
@@ -100,10 +100,10 @@ describe('GET /api/v1/creators — concurrent requests return consistent results
       const nexts = [makeNext(), makeNext(), makeNext()];
 
       await Promise.all(
-         reses.map((_res, i) => httpListCreators(req, reses[i], nexts[i]))
+         reses.map((_res, i) => httpListCreators(req, _res, nexts[i]))
       );
 
-      const bodies = reses.map((res) => res.json.mock.calls[0][0]);
+      const bodies = reses.map((_res) => _res.json.mock.calls[0][0]);
       for (let i = 1; i < bodies.length; i++) {
          expect(bodies[i].data.meta).toEqual(bodies[0].data.meta);
       }
@@ -123,7 +123,7 @@ describe('GET /api/v1/creators — concurrent requests return consistent results
          reqs.map((req, i) => httpListCreators(req, reses[i], nexts[i]))
       );
 
-      const bodies = reses.map((res) => res.json.mock.calls[0][0]);
+      const bodies = reses.map((_res) => _res.json.mock.calls[0][0]);
       for (let i = 1; i < bodies.length; i++) {
          expect(bodies[i].data.items).toHaveLength(
             bodies[0].data.items.length
@@ -148,7 +148,7 @@ describe('GET /api/v1/creators — concurrent requests return consistent results
       );
 
       // Each response should be a distinct object, not shared references
-      const bodies = reses.map((res) => res.json.mock.calls[0][0]);
+      const bodies = reses.map((_res) => _res.json.mock.calls[0][0]);
       expect(bodies[0]).not.toBe(bodies[1]);
    });
 });

@@ -48,4 +48,7 @@ function run() {
   console.log('indexer-dedupe.utils tests passed');
 }
 
+test('indexer-dedupe.utils self-checks', () => {
+  run();
+});
 run();

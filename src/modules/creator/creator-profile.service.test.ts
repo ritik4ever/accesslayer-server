@@ -1,7 +1,11 @@
-import {
+jest.mock('../../utils/prisma.utils', () => ({
+   prisma: {},
+}));
+
+const {
    getCreatorProfile,
    upsertCreatorProfile,
-} from './creator-profile.service';
+} = require('./creator-profile.service');
 import { UpsertCreatorProfileBodySchema } from './creator-profile.schemas';
 
 describe('getCreatorProfile', () => {

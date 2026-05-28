@@ -1,7 +1,7 @@
 import { strict as assert } from 'assert';
 import { buildQuerySignature } from './querySignature';
 
-async function run() {
+test('querySignature.utils self-checks', async () => {
    // Test stable output for same params in different order
    const query1 = { a: 1, b: 2, c: 3 };
    const query2 = { c: 3, b: 2, a: 1 };
@@ -49,9 +49,4 @@ async function run() {
    assert.ok(typeof complexSig === 'string' && complexSig.length === 64, 'Complex values should be handled');
 
    console.log('querySignature.utils tests passed');
-}
-
-run().catch((err) => {
-   console.error(err);
-   process.exit(1);
 });

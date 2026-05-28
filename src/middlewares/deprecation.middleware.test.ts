@@ -34,14 +34,14 @@ function run() {
       deprecate({
          deprecatedSince: '2026-01-01T00:00:00Z',
          sunsetDate: '2026-07-01T00:00:00Z',
-      })(mockReq(), res, () => {});
+      })(mockReq(), res, () => { });
       assert.equal(res.headers['Sunset'], '2026-07-01T00:00:00Z');
    }
 
    // omits Sunset header when not provided
    {
       const res = mockRes();
-      deprecate({ deprecatedSince: '2026-01-01T00:00:00Z' })(mockReq(), res, () => {});
+      deprecate({ deprecatedSince: '2026-01-01T00:00:00Z' })(mockReq(), res, () => { });
       assert.ok(!('Sunset' in res.headers), 'Sunset should not be set');
    }
 
@@ -51,18 +51,20 @@ function run() {
       deprecate({
          deprecatedSince: '2026-01-01T00:00:00Z',
          link: '/api/v2/creators',
-      })(mockReq(), res, () => {});
+      })(mockReq(), res, () => { });
       assert.equal(res.headers['Link'], '</api/v2/creators>; rel="successor-version"');
    }
 
    // omits Link header when not provided
    {
       const res = mockRes();
-      deprecate({ deprecatedSince: '2026-01-01T00:00:00Z' })(mockReq(), res, () => {});
+      deprecate({ deprecatedSince: '2026-01-01T00:00:00Z' })(mockReq(), res, () => { });
       assert.ok(!('Link' in res.headers), 'Link should not be set');
    }
 
    console.log('deprecation.middleware tests passed');
 }
 
-run();
+test('deprecation.middleware self-checks', () => {
+   run();
+});

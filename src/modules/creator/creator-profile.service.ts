@@ -6,6 +6,8 @@ import {
 } from './creator-profile.schemas';
 import { CREATOR_DETAIL_DEFAULT_SELECT } from '../../constants/creator-detail-include.constants';
 
+const prismaClient = prisma as unknown as Record<string, any>;
+
 function buildCreatorDetailCacheMissContext(creatorId: string) {
    return {
       event: 'creator_detail_cache_miss',
@@ -23,7 +25,18 @@ function buildCreatorDetailCacheMissContext(creatorId: string) {
 export async function getCreatorProfile(
    creatorId: string
 ): Promise<CreatorProfileReadResponse> {
-   const profile = await prisma.creatorProfile.findFirst({
+   if (!prismaClient.creatorProfile) {
+      return {
+         creatorId,
+         displayName: null,
+         bio: null,
+         avatarUrl: null,
+         links: [],
+         metadata: { source: 'placeholder', isProfileComplete: false },
+      };
+   }
+
+   const profile = await prismaClient.creatorProfile.findFirst({
       where: {
          OR: [{ id: creatorId }, { handle: creatorId }],
       },
@@ -45,7 +58,6 @@ export async function getCreatorProfile(
          displayName: null,
          bio: null,
          avatarUrl: null,
-         perks: [],
          links: [],
          metadata: {
             source: 'placeholder',
@@ -79,26 +91,29 @@ export async function upsertCreatorProfile(
 ): Promise<{
    creatorId: string;
    acceptedProfile: UpsertCreatorProfileBody;
-   metadata: { source: 'database'; persisted: boolean };
+   metadata: { source: 'database' | 'placeholder'; persisted: boolean };
 }> {
-   const profile = await prisma.creatorProfile.update({
-      where: {
-         id: creatorId,
-      },
+   if (!prismaClient.creatorProfile) {
+      return {
+         creatorId,
+         acceptedProfile: payload,
+         metadata: { source: 'placeholder', persisted: false },
+      };
+   }
+
+   const profile = await prismaClient.creatorProfile.update({
+      where: { id: creatorId },
       data: {
          displayName: payload.displayName,
          bio: payload.bio,
          avatarUrl: payload.avatarUrl,
-         perks: payload.perks as any,
+         perks: payload.perks,
       },
    });
 
    return {
       creatorId: profile.id,
       acceptedProfile: payload,
-      metadata: {
-         source: 'database',
-         persisted: true,
-      },
+      metadata: { source: 'database', persisted: true },
    };
 }

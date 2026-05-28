@@ -66,4 +66,6 @@ function run() {
   console.log('creators.filter whitespace normalization tests passed');
 }
 
-run();
+test('creators.filter self-checks', () => {
+  run();
+});

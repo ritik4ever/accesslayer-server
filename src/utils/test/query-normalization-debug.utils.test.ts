@@ -369,4 +369,6 @@ function run() {
    console.log('✓ All query-normalization-debug.utils tests passed');
 }
 
-run();
+test('query-normalization-debug.utils self-checks', () => {
+   run();
+});

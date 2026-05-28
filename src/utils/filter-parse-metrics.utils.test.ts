@@ -46,4 +46,6 @@ function run() {
    console.log('filter-parse-metrics.utils tests passed');
 }
 
-run();
+test('filter-parse-metrics.utils self-checks', () => {
+   run();
+});

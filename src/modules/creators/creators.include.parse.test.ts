@@ -32,4 +32,6 @@ function run() {
    console.log('creators.include.parse tests passed');
 }
 
-run();
+test('creators.include.parse self-checks', () => {
+   run();
+});

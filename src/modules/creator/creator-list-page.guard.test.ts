@@ -11,4 +11,6 @@ function run() {
    console.log('creator-list-page.guard tests passed');
 }
 
-run();
+test('creator-list-page.guard self-checks', () => {
+   run();
+});

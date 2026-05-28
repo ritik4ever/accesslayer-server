@@ -16,6 +16,7 @@
       "format": "prettier --write .",
       "format:check": "prettier --check .",
       "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
+      "test": "jest --runInBand",
       "lint:fix": "eslint . --ext .js,.ts,.jsx,.tsx --fix",
       "check": "pnpm lint && pnpm build",
       "prepare": "husky",
