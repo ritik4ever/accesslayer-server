@@ -9,8 +9,7 @@ import {
    IndexerFlagsConfigError,
    runIndexerFeatureFlagsStartupCheck,
 } from './utils/indexer-flags-startup-check.utils';
-import { checkOptionalDependencies } from './utils/startup.utils';
-import { describeDatabasePoolConfig } from './utils/db-pool-config.utils';
+
 import { stopOwnershipSnapshotCleanupJob } from './jobs/ownership-snapshot-cleanup.job';
 
 async function startServer() {
@@ -46,6 +45,12 @@ async function startServer() {
 
       // Check and warn about disabled optional dependencies (non-blocking)
       checkOptionalDependencies();
+
+      // Log startup configuration summary with sensitive values masked
+      logger.info(
+         { config: maskSensitiveConfig(envConfig as Record<string, unknown>) },
+         'Startup configuration summary'
+      );
 
       const server = app.listen(envConfig.PORT, () => {
          logger.info(`Server running on port ${envConfig.PORT}`);
