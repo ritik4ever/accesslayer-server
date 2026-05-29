@@ -5,6 +5,20 @@ import {
    UpsertCreatorProfileBody,
 } from './creator-profile.schemas';
 import { CREATOR_DETAIL_DEFAULT_SELECT } from '../../constants/creator-detail-include.constants';
+import { normalizeSocialLinkUrl } from './creator-social-link-url.utils';
+
+function normalizeProfileLinks(
+   links: UpsertCreatorProfileBody['links']
+): UpsertCreatorProfileBody['links'] {
+   if (!links) {
+      return links;
+   }
+
+   return links.map((link) => ({
+      ...link,
+      url: normalizeSocialLinkUrl(link.url),
+   }));
+}
 
 function buildCreatorDetailCacheMissContext(creatorId: string) {
    return {
@@ -81,21 +95,26 @@ export async function upsertCreatorProfile(
    acceptedProfile: UpsertCreatorProfileBody;
    metadata: { source: 'database'; persisted: boolean };
 }> {
+   const normalizedPayload: UpsertCreatorProfileBody = {
+      ...payload,
+      links: normalizeProfileLinks(payload.links),
+   };
+
    const profile = await prisma.creatorProfile.update({
       where: {
          id: creatorId,
       },
       data: {
-         displayName: payload.displayName,
-         bio: payload.bio,
-         avatarUrl: payload.avatarUrl,
-         perks: payload.perks as any,
+         displayName: normalizedPayload.displayName,
+         bio: normalizedPayload.bio,
+         avatarUrl: normalizedPayload.avatarUrl,
+         perks: normalizedPayload.perks as any,
       },
    });
 
    return {
       creatorId: profile.id,
-      acceptedProfile: payload,
+      acceptedProfile: normalizedPayload,
       metadata: {
          source: 'database',
          persisted: true,
