@@ -8,6 +8,7 @@ import { ErrorCode, ErrorCodeType } from '../constants/error.constants';
 import { logger } from '../utils/logger.utils';
 import { mapUnknownRouteError } from '../utils/route-error.utils';
 import { buildErrorContext } from '../utils/error-context.utils';
+import { sanitizeLogFieldValue } from '../utils/log-field-sanitizer.utils';
 
 export class ApiError extends Error {
    statusCode: number;
@@ -65,7 +66,7 @@ export const errorHandler: ErrorRequestHandler = (
             requestId: req.requestId,
             includeStack: envConfig.MODE === 'development',
          }),
-         route: `${req.method} ${req.originalUrl}`,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
       },
       'Error caught by global handler'
    );
@@ -144,7 +145,7 @@ export const errorHandler: ErrorRequestHandler = (
    ) {
       logger.warn({
          msg: 'Request payload too large',
-         route: `${req.method} ${req.originalUrl}`,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
          contentLength: req.headers['content-length'],
          limitBytes: err.limit,
       });

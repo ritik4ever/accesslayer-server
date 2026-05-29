@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger.utils';
 import { getClientIp } from '../utils/client-ip.utils';
 import { ErrorCode } from '../constants/error.constants';
+import { sanitizeLogFieldValue } from '../utils/log-field-sanitizer.utils';
 
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -22,47 +23,46 @@ const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
  *   - request headers beyond what Express already exposes on req
  */
 export const bodyParseErrorMiddleware = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
+   err: any,
+   req: Request,
+   res: Response,
+   next: NextFunction
 ): void => {
-  const isSyntaxError =
-    err instanceof SyntaxError && 'body' in err;
-  const isEntityTooLarge =
-    err.type === 'entity.too.large' ||
-    err.status === 413 ||
-    err.statusCode === 413;
+   const isSyntaxError = err instanceof SyntaxError && 'body' in err;
+   const isEntityTooLarge =
+      err.type === 'entity.too.large' ||
+      err.status === 413 ||
+      err.statusCode === 413;
 
-  const isParseFailure = isSyntaxError || isEntityTooLarge;
+   const isParseFailure = isSyntaxError || isEntityTooLarge;
 
-  if (!isParseFailure || !MUTATION_METHODS.has(req.method)) {
-    return next(err);
-  }
+   if (!isParseFailure || !MUTATION_METHODS.has(req.method)) {
+      return next(err);
+   }
 
-  const clientIp = getClientIp(req);
+   const clientIp = getClientIp(req);
 
-  logger.error({
-    type: 'body_parse_failure',
-    method: req.method,
-    path: req.originalUrl || req.url,
-    requestId: req.requestId,
-    clientIp,
-    errorType: isEntityTooLarge ? 'entity.too.large' : 'invalid_json',
-  });
+   logger.error({
+      type: 'body_parse_failure',
+      method: req.method,
+      path: sanitizeLogFieldValue(req.originalUrl || req.url),
+      requestId: req.requestId,
+      clientIp,
+      errorType: isEntityTooLarge ? 'entity.too.large' : 'invalid_json',
+   });
 
-  if (isEntityTooLarge) {
-    res.status(413).json({
+   if (isEntityTooLarge) {
+      res.status(413).json({
+         success: false,
+         code: ErrorCode.BAD_REQUEST,
+         message: 'Request payload too large',
+      });
+      return;
+   }
+
+   res.status(400).json({
       success: false,
       code: ErrorCode.BAD_REQUEST,
-      message: 'Request payload too large',
-    });
-    return;
-  }
-
-  res.status(400).json({
-    success: false,
-    code: ErrorCode.BAD_REQUEST,
-    message: 'Invalid JSON in request body',
-  });
+      message: 'Invalid JSON in request body',
+   });
 };
