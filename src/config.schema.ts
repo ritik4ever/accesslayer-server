@@ -88,6 +88,7 @@ export const envSchema = z
 
       INDEXER_JITTER_FACTOR: z.coerce.number().min(0).max(1).default(0.1),
       BACKGROUND_JOB_LOCK_TTL_MS: z.coerce.number().int().positive().default(300000),
+      SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().positive().default(500),
       CREATOR_LIST_SLOW_QUERY_THRESHOLD_MS: z.coerce.number().int().positive().default(500),
       INDEXER_CURSOR_STALE_AGE_WARNING_MS: z.coerce.number().int().positive().default(300000),
       INDEXER_HEARTBEAT_STALE_THRESHOLD_MS: z.coerce.number().positive().default(300000),
