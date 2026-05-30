@@ -1,4 +1,5 @@
 import { CreatorProfile } from '../../types/profile.types';
+import { safeRead } from '../../utils/safe-nested-read.utils';
 
 /**
  * Locked output shape for creator list items.
@@ -20,8 +21,8 @@ export const mapCreatorListItem = (
 ): CreatorListItem => {
    return {
       id: creator.id,
-      name: creator.displayName ?? null,
-      avatar: creator.avatarUrl ?? null,
+      name: safeRead(creator, 'displayName', null),
+      avatar: safeRead(creator, 'avatarUrl', null),
       followers: 0,
    };
 };

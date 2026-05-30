@@ -2,6 +2,7 @@
 // Shared API response formatters for consistent client-facing responses.
 
 import { Response } from 'express';
+import { ZodIssue } from 'zod';
 import { ErrorCode, ErrorCodeType } from '../constants/error.constants';
 import { requestContextStorage } from './als.utils';
 
@@ -112,6 +113,7 @@ export function sendError(
    message: string,
    details?: Array<{ field?: string; message: string }>
 ): void {
+   res.setHeader('Content-Type', 'application/json');
    res.status(statusCode).json(buildErrorResponse(code, message, details));
 }
 
@@ -129,6 +131,7 @@ export function sendSuccess<T>(
       data,
       ...(message ? { message } : {}),
    };
+   res.setHeader('Content-Type', 'application/json');
    res.status(statusCode).json(body);
 }
 
@@ -148,10 +151,29 @@ export function sendPaginatedSuccess<T>(
       meta,
       ...(message ? { message } : {}),
    };
+   res.setHeader('Content-Type', 'application/json');
    res.status(statusCode).json(body);
 }
 
 // ── Convenience helpers ──────────────────────────────────────
+
+/**
+ * Maps Zod issues to the standard `details` array used in error responses.
+ *
+ * @example
+ * const result = schema.safeParse(input);
+ * if (!result.success) {
+ *   return sendValidationError(res, 'Invalid input', zodIssuesToDetails(result.error.issues));
+ * }
+ */
+export function zodIssuesToDetails(
+   issues: ZodIssue[]
+): Array<{ field: string; message: string }> {
+   return issues.map(issue => ({
+      field: issue.path.join('.'),
+      message: issue.message,
+   }));
+}
 
 export function sendValidationError(
    res: Response,

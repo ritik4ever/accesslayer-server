@@ -29,6 +29,14 @@ function getCreatorListCacheTtlMs(): number {
 function pruneCreatorListCache(now: number): void {
    for (const [cacheKey, entry] of creatorListCache.entries()) {
       if (entry.expiresAt <= now) {
+         logger.debug({
+            msg: 'Creator list cache eviction',
+            event: 'creator_list_cache_eviction',
+            cacheKey,
+            reason: 'expired',
+            expiresAt: entry.expiresAt,
+            now,
+         });
          creatorListCache.delete(cacheKey);
       }
    }
@@ -43,6 +51,14 @@ function pruneCreatorListCache(now: number): void {
       .slice(0, overflow);
 
    for (const [cacheKey] of oldestEntries) {
+      logger.debug({
+         msg: 'Creator list cache eviction',
+         event: 'creator_list_cache_eviction',
+         cacheKey,
+         reason: 'overflow',
+         cacheSize: creatorListCache.size,
+         maxSize: MAX_CREATOR_LIST_CACHE_ENTRIES,
+      });
       creatorListCache.delete(cacheKey);
    }
 }
@@ -101,6 +117,14 @@ export function getCachedCreatorList(
    }
 
    if (cachedEntry) {
+      logger.debug({
+         msg: 'Creator list cache eviction',
+         event: 'creator_list_cache_eviction',
+         cacheKey,
+         reason: 'stale',
+         expiresAt: cachedEntry.expiresAt,
+         now,
+      });
       creatorListCache.delete(cacheKey);
    }
 

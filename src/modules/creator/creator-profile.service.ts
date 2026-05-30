@@ -5,6 +5,20 @@ import {
    UpsertCreatorProfileBody,
 } from './creator-profile.schemas';
 import { CREATOR_DETAIL_DEFAULT_SELECT } from '../../constants/creator-detail-include.constants';
+import { normalizeSocialLinkUrl } from './creator-social-link-url.utils';
+
+function normalizeProfileLinks(
+   links: UpsertCreatorProfileBody['links']
+): UpsertCreatorProfileBody['links'] {
+   if (!links) {
+      return links;
+   }
+
+   return links.map((link) => ({
+      ...link,
+      url: normalizeSocialLinkUrl(link.url),
+   }));
+}
 
 const prismaClient = prisma as unknown as Record<string, any>;
 
@@ -93,27 +107,12 @@ export async function upsertCreatorProfile(
    acceptedProfile: UpsertCreatorProfileBody;
    metadata: { source: 'database' | 'placeholder'; persisted: boolean };
 }> {
-   if (!prismaClient.creatorProfile) {
-      return {
-         creatorId,
-         acceptedProfile: payload,
-         metadata: { source: 'placeholder', persisted: false },
-      };
-   }
 
-   const profile = await prismaClient.creatorProfile.update({
-      where: { id: creatorId },
-      data: {
-         displayName: payload.displayName,
-         bio: payload.bio,
-         avatarUrl: payload.avatarUrl,
-         perks: payload.perks,
       },
    });
 
    return {
       creatorId: profile.id,
-      acceptedProfile: payload,
-      metadata: { source: 'database', persisted: true },
+
    };
 }

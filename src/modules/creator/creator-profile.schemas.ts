@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { withCreatorSlugEmptyStringNormalization } from './creator-slug-input.utils';
+import { normalizeSocialLinkUrl } from './creator-social-link-url.utils';
 
 /**
  * Shared creator profile identifier schema for route params.
@@ -80,7 +81,11 @@ export const UpsertCreatorProfileBodySchema = z.object({
                .trim()
                .min(1, 'Link label is required')
                .max(40, 'Link label must be at most 40 characters'),
-            url: z.string().trim().url('Link URL must be a valid URL'),
+            url: z
+               .string()
+               .trim()
+               .url('Link URL must be a valid URL')
+               .transform(normalizeSocialLinkUrl),
          })
       )
       .max(8, 'At most 8 profile links are allowed')

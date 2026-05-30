@@ -1,4 +1,3 @@
-// src/middlewares/error.middleware.ts
 import { NextFunction, Request, Response } from 'express';
 import { envConfig } from '../config';
 import { ErrorRequestHandler } from 'express';
@@ -8,6 +7,8 @@ import { ErrorCode, ErrorCodeType } from '../constants/error.constants';
 import { logger } from '../utils/logger.utils';
 import { mapUnknownRouteError } from '../utils/route-error.utils';
 import { buildErrorContext } from '../utils/error-context.utils';
+import { sanitizeLogFieldValue } from '../utils/log-field-sanitizer.utils';
+import { buildErrorResponse, zodIssuesToDetails } from '../utils/api-response.utils';
 
 export class ApiError extends Error {
    statusCode: number;
@@ -65,19 +66,21 @@ export const errorHandler: ErrorRequestHandler = (
             requestId: req.requestId,
             includeStack: envConfig.MODE === 'development',
          }),
-         route: `${req.method} ${req.originalUrl}`,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
       },
       'Error caught by global handler'
    );
 
    // Handle Zod validation errors
    if (err instanceof z.ZodError || err.name === 'ZodError') {
-      res.status(400).json({
-         success: false,
-         code: ErrorCode.VALIDATION_ERROR,
-         message: 'Validation failed',
-         errors: err.errors || err.issues,
-      });
+      const issues: z.ZodIssue[] = err.errors ?? err.issues ?? [];
+      res.status(400).json(
+         buildErrorResponse(
+            ErrorCode.VALIDATION_ERROR,
+            'Validation failed',
+            zodIssuesToDetails(issues)
+         )
+      );
       return;
    }
 
@@ -144,7 +147,7 @@ export const errorHandler: ErrorRequestHandler = (
    ) {
       logger.warn({
          msg: 'Request payload too large',
-         route: `${req.method} ${req.originalUrl}`,
+         route: `${req.method} ${sanitizeLogFieldValue(req.originalUrl)}`,
          contentLength: req.headers['content-length'],
          limitBytes: err.limit,
       });

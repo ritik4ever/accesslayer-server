@@ -59,6 +59,7 @@ import {
    CreatorListItem,
    mapCreatorListItem,
 } from './creator-list-item.mapper';
+import { safeRead } from '../../utils/safe-nested-read.utils';
 
 /**
  * Creator summary shape for list responses.
@@ -93,7 +94,7 @@ export function serializeCreatorSummary(
       id: profile.id,
       handle: profile.handle,
       displayName: profile.displayName,
-      avatarUrl: profile.avatarUrl,
+      avatarUrl: safeRead(profile, 'avatarUrl', undefined),
       isVerified: profile.isVerified,
    };
 }

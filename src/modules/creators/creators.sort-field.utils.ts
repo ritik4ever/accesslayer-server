@@ -8,6 +8,7 @@ import {
    normalizeCreatorListQueryStringValue,
 } from './creators.query-string.utils';
 import { logger } from '../../utils/logger.utils';
+import { sanitizeLogFieldValue } from '../../utils/log-field-sanitizer.utils';
 
 /**
  * Returns true when `value` is an allowed public creator list sort field.
@@ -57,7 +58,9 @@ export function warnIfUnrecognizedCreatorListSort(
 
    logger.warn({
       msg: 'Unrecognized creator list sort field',
-      sort: encodeCreatorListQueryStringValue(normalized) ?? normalized,
+      sort: sanitizeLogFieldValue(
+         encodeCreatorListQueryStringValue(normalized) ?? normalized
+      ),
       ...(requestId ? { requestId } : {}),
    });
 }
